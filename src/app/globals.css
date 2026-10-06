@@ -99,6 +99,42 @@ body {
   }
 }
 
+@keyframes logo-shimmer {
+  0%,
+  68%,
+  100% {
+    transform: translateX(-130%);
+  }
+  82% {
+    transform: translateX(130%);
+  }
+}
+
+.logo-shimmer {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  color: var(--ink-deep);
+}
+
+.logo-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: -10% -20%;
+  background: linear-gradient(
+    105deg,
+    transparent 32%,
+    rgba(255, 255, 255, 0.15) 44%,
+    rgba(184, 221, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0.2) 56%,
+    transparent 68%
+  );
+  transform: translateX(-130%);
+  animation: logo-shimmer 5.5s ease-in-out infinite;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+}
+
 .animate-fade-up {
   animation: fade-up 0.7s ease-out both;
 }
@@ -133,7 +169,12 @@ body {
   .animate-fade-up-delay-2,
   .animate-fade-up-delay-3,
   .animate-float-soft,
-  .animate-pulse-line {
+  .animate-pulse-line,
+  .logo-shimmer::after {
     animation: none;
+  }
+
+  .logo-shimmer::after {
+    content: none;
   }
 }

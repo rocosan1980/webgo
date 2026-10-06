@@ -18,16 +18,20 @@ export default function Hero() {
       <div className="relative mx-auto flex min-h-[calc(100svh-4.25rem)] max-w-6xl flex-col justify-center px-5 py-20 sm:px-8">
         <div className="max-w-2xl">
           <p className="animate-fade-up font-display text-5xl font-semibold tracking-tight text-ink-deep sm:text-6xl lg:text-7xl">
-            Web<span className="text-accent">Go</span>
+            <span className="logo-shimmer">
+              Web<span className="text-accent">Go</span>
+            </span>
           </p>
 
           <h1 className="animate-fade-up-delay-1 mt-6 font-display text-3xl font-semibold leading-[1.12] tracking-tight text-ink-deep sm:text-4xl lg:text-[2.85rem]">
-            Landing pages que convierten, listas en tiempo récord.
+            Tu negocio en internet con clase y velocidad. Landing pages que
+            conectan y venden.
           </h1>
 
           <p className="animate-fade-up-delay-2 mt-5 max-w-lg text-base leading-relaxed text-muted sm:text-lg">
-            Diseño profesional, entrega ágil e integraciones avanzadas:
-            WhatsApp, automatizaciones e IA para acelerar tus resultados.
+            Diseño profesional de entrega rápida respaldado por tecnologías de
+            última generación, herramientas IA y flujos optimizados para captar
+            la atención desde el primer día.
           </p>
 
           <div className="animate-fade-up-delay-3 mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
