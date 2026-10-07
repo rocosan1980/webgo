@@ -6,6 +6,7 @@ const legalLinks = [
 
 const productLinks = [
   { href: "#beneficios", label: "Beneficios" },
+  { href: "#proceso", label: "Proceso" },
   { href: "#paquetes", label: "Paquetes" },
   { href: "#contacto", label: "Contacto" },
   { href: "#enterprise", label: "Enterprise" },

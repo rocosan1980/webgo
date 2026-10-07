@@ -1,27 +1,27 @@
 const features = [
   {
-    title: "Velocidad de entrega",
+    title: "Velocidad de entrega (24h)",
     description:
-      "Procesos ágiles para publicar landing pages profesionales sin dilatar tu campaña ni perder momentum comercial.",
+      "Procesos ágiles con IA para diseñar, configurar y publicar tu landing en tiempo récord. Ideal para lanzamientos inmediatos y campañas urgentes donde cada hora cuenta.",
     detail: "Brief → diseño → publicación",
   },
   {
     title: "Diseño de categoría",
     description:
-      "Interfaces limpias, tipografía cuidada y jerarquía visual pensada para transmitir confianza desde el primer scroll.",
+      "Interfaces impecables, tipografía cuidada y jerarquía de conversión clara. 100% adaptable y funcional en web, tablets, móviles y escritorio, para transmitir confianza en cualquier pantalla.",
     detail: "Look & feel premium",
   },
   {
     title: "Alta conversión",
     description:
-      "Estructura orientada a acción: CTAs claros, prueba social y formularios conectados a WhatsApp para cerrar más rápido.",
+      "Ingeniería de conversión con CTAs de alto impacto, prueba social y formularios listos para captar leads. Respaldado por la robustez y velocidad de un servidor de alto rendimiento.",
     detail: "Leads listos para vender",
   },
   {
-    title: "Integraciones avanzadas",
+    title: "IA · CRM · Módulos personalizados",
     description:
-      "Automatizaciones, notificaciones y asistentes con IA para nutrir prospectos y reducir trabajo manual del equipo.",
-    detail: "WhatsApp · CRM · IA",
+      "Ecosistema tecnológico integral con asistentes de IA, flujos automatizados y sincronización inteligente. Reduce carga operativa y mantiene tu captación activa las 24 horas.",
+    detail: "Integraciones avanzadas",
   },
 ];
 
@@ -42,19 +42,19 @@ export default function Features() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2">
+        <div className="mt-12 grid gap-5 sm:grid-cols-2">
           {features.map((feature) => (
             <article
               key={feature.title}
-              className="group bg-surface p-7 transition-colors duration-300 hover:bg-accent-soft/40 sm:p-8"
+              className="group flex flex-col rounded-2xl border border-line bg-background px-7 py-8 shadow-[0_1px_2px_rgba(11,20,38,0.04)] transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-accent/35 hover:shadow-[0_16px_36px_-18px_rgba(11,20,38,0.22)] sm:px-8 sm:py-9 lg:px-9 lg:py-10"
             >
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
                 {feature.detail}
               </p>
-              <h3 className="mt-3 font-display text-xl font-semibold text-ink-deep">
+              <h3 className="mt-3.5 font-display text-lg font-semibold leading-snug text-ink-deep sm:mt-4 sm:text-xl">
                 {feature.title}
               </h3>
-              <p className="mt-3 text-[15px] leading-relaxed text-muted">
+              <p className="mt-4 flex-1 text-[15px] leading-7 text-muted sm:mt-5 sm:text-base sm:leading-8">
                 {feature.description}
               </p>
             </article>

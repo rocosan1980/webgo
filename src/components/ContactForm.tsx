@@ -189,12 +189,10 @@ export default function ContactForm() {
                 aria-invalid={Boolean(errors.packageInterest)}
               >
                 <option value="">Selecciona una opción</option>
-                <option value="Agil">Ágil</option>
-                <option value="Pro">Pro</option>
-                <option value="Integral">Integral</option>
-                <option value="Enterprise">
-                  Enterprise · Comunicación Integral
-                </option>
+                <option value="Express">Express</option>
+                <option value="Dinamico">Dinámico</option>
+                <option value="Profesional">Profesional</option>
+                <option value="Enterprise">Enterprise</option>
               </select>
               {errors.packageInterest ? (
                 <span className="mt-1.5 block text-xs text-red-600">

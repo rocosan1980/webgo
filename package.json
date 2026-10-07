@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "deploy": "rsync -avz --delete --exclude node_modules --exclude .next --exclude .git --exclude data/ --exclude app/automation-data.ts --exclude src/app/automation-data.ts --exclude '*.log' ./ poder:/var/www/WEBGO/"
   },
   "dependencies": {
     "next": "16.3.8",
