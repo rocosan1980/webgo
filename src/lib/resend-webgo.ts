@@ -1,5 +1,8 @@
 import { Resend } from "resend";
-import type { ContactPayload } from "@/lib/contact";
+import {
+  formatDomainSummary,
+  type ContactPayload,
+} from "@/lib/contact";
 
 const PACKAGE_LABELS: Record<string, string> = {
   Express: "Express",
@@ -69,6 +72,7 @@ export async function sendContactLeadEmail(data: ContactPayload) {
 
   const packageName =
     PACKAGE_LABELS[data.packageInterest] ?? data.packageInterest;
+  const domainSummary = formatDomainSummary(data);
   const when = formatDateTime();
   const resend = new Resend(apiKey);
   const safe = {
@@ -76,6 +80,7 @@ export async function sendContactLeadEmail(data: ContactPayload) {
     phone: escapeHtml(data.phone),
     email: escapeHtml(data.email),
     packageName: escapeHtml(packageName),
+    domainSummary: escapeHtml(domainSummary),
     message: escapeHtml(data.message),
     when: escapeHtml(when),
   };
@@ -94,6 +99,7 @@ export async function sendContactLeadEmail(data: ContactPayload) {
         `Teléfono / WhatsApp: ${data.phone}`,
         `Correo: ${data.email}`,
         `Paquete seleccionado: ${packageName}`,
+        `Dominio: ${domainSummary}`,
         "",
         "Mensaje:",
         data.message,
@@ -108,6 +114,7 @@ export async function sendContactLeadEmail(data: ContactPayload) {
             <tr><td style="padding:8px 0;color:#5a6578">Teléfono / WhatsApp</td><td style="padding:8px 0"><strong>${safe.phone}</strong></td></tr>
             <tr><td style="padding:8px 0;color:#5a6578">Correo</td><td style="padding:8px 0"><strong>${safe.email}</strong></td></tr>
             <tr><td style="padding:8px 0;color:#5a6578">Paquete</td><td style="padding:8px 0"><strong>${safe.packageName}</strong></td></tr>
+            <tr><td style="padding:8px 0;color:#5a6578">Dominio</td><td style="padding:8px 0"><strong>${safe.domainSummary}</strong></td></tr>
           </table>
           <p style="margin:20px 0 6px;color:#5a6578">Mensaje</p>
           <p style="margin:0;white-space:pre-wrap">${safe.message}</p>

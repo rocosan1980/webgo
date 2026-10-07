@@ -13,6 +13,8 @@ export type Lead = {
   phone: string;
   packageInterest: string;
   message: string;
+  domainStatus?: "yes" | "no" | "";
+  domainName?: string;
   notes: string;
   status: LeadStatus;
 };

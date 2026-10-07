@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { formatDomainSummary } from "@/lib/contact";
 import { LEAD_STATUS_LABELS, Lead, LeadStatus } from "@/lib/leads";
 
 const PACKAGE_LABELS: Record<string, string> = {
@@ -279,8 +280,13 @@ export default function AdminPanel() {
                   </a>
                 </td>
                 <td className="px-4 py-4">
-                  {PACKAGE_LABELS[lead.packageInterest] ??
-                    lead.packageInterest}
+                  <div>
+                    {PACKAGE_LABELS[lead.packageInterest] ??
+                      lead.packageInterest}
+                  </div>
+                  <p className="mt-1 text-xs text-muted">
+                    Dominio: {formatDomainSummary(lead)}
+                  </p>
                 </td>
                 <td className="px-4 py-4">
                   <select

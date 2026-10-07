@@ -17,6 +17,8 @@ const initialForm: ContactPayload = {
   phone: "",
   packageInterest: "",
   message: "",
+  domainStatus: "",
+  domainName: "",
 };
 
 type SubmitMode = "email" | "email_whatsapp";
@@ -36,7 +38,18 @@ export default function ContactForm() {
     >,
   ) => {
     const { name, value } = event.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => {
+      if (name === "domainStatus") {
+        const domainStatus =
+          value === "yes" || value === "no" ? value : "";
+        return {
+          ...prev,
+          domainStatus,
+          domainName: domainStatus === "yes" ? prev.domainName : "",
+        };
+      }
+      return { ...prev, [name]: value };
+    });
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
@@ -118,6 +131,9 @@ export default function ContactForm() {
   const fieldClass =
     "mt-2 w-full rounded-md border border-line bg-surface px-3.5 py-3 text-sm text-foreground outline-none transition-[border-color,box-shadow] placeholder:text-muted/70 focus:border-accent focus:shadow-[0_0_0_3px_rgba(14,143,159,0.15)]";
 
+  const buttonBaseClass =
+    "inline-flex h-full min-h-[3.5rem] w-full items-center justify-center rounded-md px-4 py-3.5 text-center text-sm font-semibold leading-snug transition-colors disabled:cursor-not-allowed disabled:opacity-70";
+
   const isLoading = status === "loading";
 
   return (
@@ -179,7 +195,10 @@ export default function ContactForm() {
             </label>
 
             <label className="block text-sm font-medium text-foreground">
-              Correo
+              Correo{" "}
+              <span className="font-normal text-muted">
+                * importante para asegurar el contacto
+              </span>
               <input
                 name="email"
                 type="email"
@@ -239,6 +258,40 @@ export default function ContactForm() {
             </label>
           </div>
 
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <label className="block text-sm font-medium text-foreground">
+              ¿Cuentas con un dominio?{" "}
+              <span className="font-normal text-muted">(opcional)</span>
+              <select
+                name="domainStatus"
+                value={form.domainStatus}
+                onChange={onChange}
+                className={fieldClass}
+              >
+                <option value="">Prefiero no indicarlo</option>
+                <option value="yes">Sí, cuento con dominio</option>
+                <option value="no">No cuento con dominio</option>
+              </select>
+            </label>
+
+            {form.domainStatus === "yes" ? (
+              <label className="block text-sm font-medium text-foreground">
+                Tu dominio{" "}
+                <span className="font-normal text-muted">(opcional)</span>
+                <input
+                  name="domainName"
+                  value={form.domainName}
+                  onChange={onChange}
+                  className={fieldClass}
+                  placeholder="tudominio.com.lat"
+                  autoComplete="url"
+                />
+              </label>
+            ) : (
+              <div className="hidden sm:block" aria-hidden="true" />
+            )}
+          </div>
+
           <label className="mt-5 block text-sm font-medium text-foreground">
             Mensaje
             <textarea
@@ -257,28 +310,40 @@ export default function ContactForm() {
             ) : null}
           </label>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <button
-              type="button"
-              disabled={isLoading}
-              onClick={() => void submitContact("email")}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-line bg-surface px-4 py-3.5 text-sm font-semibold text-foreground transition-colors hover:border-accent hover:text-accent-strong disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
-            >
-              {isLoading && activeMode === "email"
-                ? "Enviando..."
-                : "Enviar mensaje por correo"}
-            </button>
+          <div className="mt-6 grid items-stretch gap-4 sm:grid-cols-2">
+            <div className="flex h-full flex-col">
+              <button
+                type="button"
+                disabled={isLoading}
+                onClick={() => void submitContact("email")}
+                className={`${buttonBaseClass} border border-line bg-surface text-foreground hover:border-accent hover:text-accent-strong`}
+              >
+                {isLoading && activeMode === "email"
+                  ? "Enviando..."
+                  : "Enviar mensaje por correo"}
+              </button>
+              <p className="mt-2 text-xs leading-relaxed text-muted">
+                * Recomendado si estás en una computadora o en tu equipo no
+                tienes WhatsApp, WhatsApp Web o aplicación de WhatsApp.
+              </p>
+            </div>
 
-            <button
-              type="button"
-              disabled={isLoading}
-              onClick={() => void submitContact("email_whatsapp")}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-accent px-4 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
-            >
-              {isLoading && activeMode === "email_whatsapp"
-                ? "Enviando y abriendo WhatsApp..."
-                : "Enviar correo y abrir WhatsApp"}
-            </button>
+            <div className="flex h-full flex-col">
+              <button
+                type="button"
+                disabled={isLoading}
+                onClick={() => void submitContact("email_whatsapp")}
+                className={`${buttonBaseClass} bg-accent text-white hover:bg-accent-strong`}
+              >
+                {isLoading && activeMode === "email_whatsapp"
+                  ? "Enviando y abriendo WhatsApp..."
+                  : "Enviar correo y abrir WhatsApp"}
+              </button>
+              <p className="mt-2 text-xs leading-relaxed text-muted">
+                * Recomendado si estás en un móvil, tablet o cuentas con
+                WhatsApp Web en tu computadora.
+              </p>
+            </div>
           </div>
 
           {feedback ? (

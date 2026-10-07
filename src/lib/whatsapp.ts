@@ -20,6 +20,8 @@ export function buildContactWhatsAppMessage(data: {
   phone: string;
   packageInterest: string;
   message?: string;
+  domainStatus?: "yes" | "no" | "";
+  domainName?: string;
 }) {
   const packageName =
     PACKAGE_LABELS[data.packageInterest] ?? data.packageInterest;
@@ -32,6 +34,16 @@ export function buildContactWhatsAppMessage(data: {
   if (data.email.trim()) {
     text += ` Correo: ${data.email.trim()}.`;
   }
+
+  if (data.domainStatus === "no") {
+    text += " No cuento con dominio.";
+  } else if (data.domainStatus === "yes") {
+    const domain = data.domainName?.trim();
+    text += domain
+      ? ` Cuento con el dominio ${domain}.`
+      : " Sí cuento con dominio.";
+  }
+
   if (data.message?.trim()) {
     text += ` Detalle: ${data.message.trim()}`;
   }

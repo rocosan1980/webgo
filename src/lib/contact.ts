@@ -1,9 +1,13 @@
+export type DomainStatus = "yes" | "no" | "";
+
 export type ContactPayload = {
   name: string;
   email: string;
   phone: string;
   packageInterest: string;
   message: string;
+  domainStatus: DomainStatus;
+  domainName: string;
 };
 
 export type ContactFieldErrors = Partial<Record<keyof ContactPayload, string>>;
@@ -11,16 +15,41 @@ export type ContactFieldErrors = Partial<Record<keyof ContactPayload, string>>;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[+]?[\d\s()-]{7,20}$/;
 
+export function formatDomainSummary(data: {
+  domainStatus?: DomainStatus | string;
+  domainName?: string;
+}): string {
+  if (data.domainStatus === "no") {
+    return "No cuento con dominio";
+  }
+
+  if (data.domainStatus === "yes") {
+    const name = (data.domainName ?? "").trim();
+    return name ? name : "Sí (sin especificar)";
+  }
+
+  return "No indicado";
+}
+
 export function validateContactPayload(
-  data: Partial<ContactPayload>,
+  data: Partial<ContactPayload> & Record<string, unknown>,
 ): { ok: true; data: ContactPayload } | { ok: false; errors: ContactFieldErrors } {
   const errors: ContactFieldErrors = {};
 
-  const name = (data.name ?? "").trim();
-  const email = (data.email ?? "").trim();
-  const phone = (data.phone ?? "").trim();
-  const packageInterest = (data.packageInterest ?? "").trim();
-  const message = (data.message ?? "").trim();
+  const name = (data.name ?? "").toString().trim();
+  const email = (data.email ?? "").toString().trim();
+  const phone = (data.phone ?? "").toString().trim();
+  const packageInterest = (data.packageInterest ?? "").toString().trim();
+  const message = (data.message ?? "").toString().trim();
+  const rawDomainStatus = (data.domainStatus ?? "").toString().trim();
+  const domainStatus: DomainStatus =
+    rawDomainStatus === "yes" || rawDomainStatus === "no"
+      ? rawDomainStatus
+      : "";
+  const domainName =
+    domainStatus === "yes"
+      ? (data.domainName ?? "").toString().trim()
+      : "";
 
   if (name.length < 2) {
     errors.name = "Ingresa tu nombre completo.";
@@ -48,6 +77,14 @@ export function validateContactPayload(
 
   return {
     ok: true,
-    data: { name, email, phone, packageInterest, message },
+    data: {
+      name,
+      email,
+      phone,
+      packageInterest,
+      message,
+      domainStatus,
+      domainName,
+    },
   };
 }
