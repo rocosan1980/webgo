@@ -22,6 +22,8 @@ export function buildContactWhatsAppMessage(data: {
   message?: string;
   domainStatus?: "yes" | "no" | "";
   domainName?: string;
+  contactPreference?: "telefono" | "correo" | "whatsapp" | "";
+  preferredSchedule?: string;
 }) {
   const packageName =
     PACKAGE_LABELS[data.packageInterest] ?? data.packageInterest;
@@ -33,6 +35,18 @@ export function buildContactWhatsAppMessage(data: {
   }
   if (data.email.trim()) {
     text += ` Correo: ${data.email.trim()}.`;
+  }
+
+  if (data.contactPreference === "telefono") {
+    text += " Prefiero que me contacten por teléfono.";
+  } else if (data.contactPreference === "correo") {
+    text += " Prefiero que me contacten por correo.";
+  } else if (data.contactPreference === "whatsapp") {
+    text += " Prefiero que me contacten por WhatsApp.";
+  }
+
+  if (data.preferredSchedule?.trim()) {
+    text += ` Mejor horario de contacto: ${data.preferredSchedule.trim()}.`;
   }
 
   if (data.domainStatus === "no") {

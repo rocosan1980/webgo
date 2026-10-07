@@ -15,6 +15,8 @@ export type Lead = {
   message: string;
   domainStatus?: "yes" | "no" | "";
   domainName?: string;
+  contactPreference?: "telefono" | "correo" | "whatsapp" | "";
+  preferredSchedule?: string;
   notes: string;
   status: LeadStatus;
 };

@@ -1,7 +1,10 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { formatDomainSummary } from "@/lib/contact";
+import {
+  formatContactPreference,
+  formatDomainSummary,
+} from "@/lib/contact";
 import { LEAD_STATUS_LABELS, Lead, LeadStatus } from "@/lib/leads";
 
 const PACKAGE_LABELS: Record<string, string> = {
@@ -285,6 +288,12 @@ export default function AdminPanel() {
                       lead.packageInterest}
                   </div>
                   <p className="mt-1 text-xs text-muted">
+                    Contacto: {formatContactPreference(lead.contactPreference)}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted">
+                    Horario: {lead.preferredSchedule?.trim() || "No indicado"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted">
                     Dominio: {formatDomainSummary(lead)}
                   </p>
                 </td>

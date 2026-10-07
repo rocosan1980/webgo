@@ -19,6 +19,8 @@ const initialForm: ContactPayload = {
   message: "",
   domainStatus: "",
   domainName: "",
+  contactPreference: "",
+  preferredSchedule: "",
 };
 
 type SubmitMode = "email" | "email_whatsapp";
@@ -78,7 +80,7 @@ export default function ContactForm() {
     setFeedback(
       mode === "email_whatsapp"
         ? "Enviando tu solicitud y preparando WhatsApp..."
-        : "Enviando tu mensaje por correo...",
+        : "Enviando tu formulario...",
     );
 
     try {
@@ -108,12 +110,12 @@ export default function ContactForm() {
 
       if (mode === "email_whatsapp") {
         setFeedback(
-          "¡Mensaje enviado! Te abrimos WhatsApp para continuar la conversación.",
+          "¡Formulario enviado! Te abrimos WhatsApp para continuar la conversación.",
         );
         openWhatsAppChat(validation.data);
       } else {
         setFeedback(
-          "¡Mensaje enviado! Te contactaremos pronto por correo.",
+          "¡Formulario enviado! Te contactaremos pronto.",
         );
       }
 
@@ -131,6 +133,8 @@ export default function ContactForm() {
   const fieldClass =
     "mt-2 w-full rounded-md border border-line bg-surface px-3.5 py-3 text-sm text-foreground outline-none transition-[border-color,box-shadow] placeholder:text-muted/70 focus:border-accent focus:shadow-[0_0_0_3px_rgba(14,143,159,0.15)]";
 
+  const labelClass = "block text-sm font-medium text-foreground";
+
   const buttonBaseClass =
     "inline-flex h-full min-h-[3.5rem] w-full items-center justify-center rounded-md px-4 py-3.5 text-center text-sm font-semibold leading-snug transition-colors disabled:cursor-not-allowed disabled:opacity-70";
 
@@ -147,8 +151,11 @@ export default function ContactForm() {
             Cuéntanos qué quieres lanzar.
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted sm:text-lg">
-            Completa el formulario y elige cómo quieres que te contactemos:
-            solo por correo, o por correo y WhatsApp al mismo tiempo.
+            Completa el formulario y elige cómo quieres que te contactemos. Por
+            teléfono, por correo o por correo y WhatsApp al mismo tiempo.
+            Queremos conocerte, platícanos más de ti. ¿Tienes un dominio activo?
+            Bueno, no importa, lo que queremos es conocerte más porque estamos
+            listos para sorprenderte.
           </p>
 
           <div className="mt-8 space-y-4 text-sm text-muted">
@@ -160,13 +167,7 @@ export default function ContactForm() {
               <span className="font-semibold text-foreground">Web:</span>{" "}
               webgo.lat
             </p>
-            <p>
-              Tiempo de respuesta habitual:{" "}
-              <span className="font-semibold text-foreground">
-                de volada por WhatsApp
-              </span>
-              .
-            </p>
+            <p>Tiempo de respuesta habitual: de volada por WhatsApp.</p>
           </div>
         </div>
 
@@ -176,7 +177,7 @@ export default function ContactForm() {
           className="rounded-2xl border border-line bg-background p-6 sm:p-8"
         >
           <div className="grid gap-5 sm:grid-cols-2">
-            <label className="block text-sm font-medium text-foreground">
+            <label className={labelClass}>
               Nombre
               <input
                 name="name"
@@ -194,11 +195,8 @@ export default function ContactForm() {
               ) : null}
             </label>
 
-            <label className="block text-sm font-medium text-foreground">
-              Correo{" "}
-              <span className="font-normal text-muted">
-                * importante para asegurar el contacto
-              </span>
+            <label className={labelClass}>
+              Correo
               <input
                 name="email"
                 type="email"
@@ -213,10 +211,14 @@ export default function ContactForm() {
                 <span className="mt-1.5 block text-xs text-red-600">
                   {errors.email}
                 </span>
-              ) : null}
+              ) : (
+                <span className="mt-1.5 block text-xs text-muted">
+                  * importante para asegurar el contacto
+                </span>
+              )}
             </label>
 
-            <label className="block text-sm font-medium text-foreground">
+            <label className={labelClass}>
               Teléfono / WhatsApp
               <input
                 name="phone"
@@ -235,7 +237,7 @@ export default function ContactForm() {
               ) : null}
             </label>
 
-            <label className="block text-sm font-medium text-foreground">
+            <label className={labelClass}>
               Paquete de interés
               <select
                 name="packageInterest"
@@ -259,7 +261,35 @@ export default function ContactForm() {
           </div>
 
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <label className="block text-sm font-medium text-foreground">
+            <label className={labelClass}>
+              ¿Cómo prefieres que te contactemos?
+              <select
+                name="contactPreference"
+                value={form.contactPreference}
+                onChange={onChange}
+                className={fieldClass}
+              >
+                <option value="">Selecciona una opción</option>
+                <option value="telefono">Teléfono</option>
+                <option value="correo">Correo</option>
+                <option value="whatsapp">WhatsApp</option>
+              </select>
+            </label>
+
+            <label className={labelClass}>
+              Mejor horario de contacto
+              <input
+                name="preferredSchedule"
+                value={form.preferredSchedule}
+                onChange={onChange}
+                className={fieldClass}
+                placeholder="Ej. 10:00 a 14:00"
+              />
+            </label>
+          </div>
+
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <label className={labelClass}>
               ¿Cuentas con un dominio?{" "}
               <span className="font-normal text-muted">(opcional)</span>
               <select
@@ -275,7 +305,7 @@ export default function ContactForm() {
             </label>
 
             {form.domainStatus === "yes" ? (
-              <label className="block text-sm font-medium text-foreground">
+              <label className={labelClass}>
                 Tu dominio{" "}
                 <span className="font-normal text-muted">(opcional)</span>
                 <input
@@ -292,7 +322,7 @@ export default function ContactForm() {
             )}
           </div>
 
-          <label className="mt-5 block text-sm font-medium text-foreground">
+          <label className={`mt-5 ${labelClass}`}>
             Mensaje
             <textarea
               name="message"
@@ -320,7 +350,7 @@ export default function ContactForm() {
               >
                 {isLoading && activeMode === "email"
                   ? "Enviando..."
-                  : "Enviar mensaje por correo"}
+                  : "Enviar formulario ahora"}
               </button>
               <p className="mt-2 text-xs leading-relaxed text-muted">
                 * Recomendado si estás en una computadora o en tu equipo no
@@ -337,7 +367,7 @@ export default function ContactForm() {
               >
                 {isLoading && activeMode === "email_whatsapp"
                   ? "Enviando y abriendo WhatsApp..."
-                  : "Enviar correo y abrir WhatsApp"}
+                  : "Enviar formulario y abrir WhatsApp"}
               </button>
               <p className="mt-2 text-xs leading-relaxed text-muted">
                 * Recomendado si estás en un móvil, tablet o cuentas con

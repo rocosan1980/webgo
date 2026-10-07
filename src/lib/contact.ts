@@ -1,5 +1,7 @@
 export type DomainStatus = "yes" | "no" | "";
 
+export type ContactPreference = "telefono" | "correo" | "whatsapp" | "";
+
 export type ContactPayload = {
   name: string;
   email: string;
@@ -8,12 +10,23 @@ export type ContactPayload = {
   message: string;
   domainStatus: DomainStatus;
   domainName: string;
+  contactPreference: ContactPreference;
+  preferredSchedule: string;
 };
 
 export type ContactFieldErrors = Partial<Record<keyof ContactPayload, string>>;
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[+]?[\d\s()-]{7,20}$/;
+
+const CONTACT_PREFERENCE_LABELS: Record<
+  Exclude<ContactPreference, "">,
+  string
+> = {
+  telefono: "Teléfono",
+  correo: "Correo",
+  whatsapp: "WhatsApp",
+};
 
 export function formatDomainSummary(data: {
   domainStatus?: DomainStatus | string;
@@ -31,6 +44,15 @@ export function formatDomainSummary(data: {
   return "No indicado";
 }
 
+export function formatContactPreference(
+  value?: ContactPreference | string,
+): string {
+  if (value === "telefono" || value === "correo" || value === "whatsapp") {
+    return CONTACT_PREFERENCE_LABELS[value];
+  }
+  return "No indicado";
+}
+
 export function validateContactPayload(
   data: Partial<ContactPayload> & Record<string, unknown>,
 ): { ok: true; data: ContactPayload } | { ok: false; errors: ContactFieldErrors } {
@@ -41,6 +63,8 @@ export function validateContactPayload(
   const phone = (data.phone ?? "").toString().trim();
   const packageInterest = (data.packageInterest ?? "").toString().trim();
   const message = (data.message ?? "").toString().trim();
+  const preferredSchedule = (data.preferredSchedule ?? "").toString().trim();
+
   const rawDomainStatus = (data.domainStatus ?? "").toString().trim();
   const domainStatus: DomainStatus =
     rawDomainStatus === "yes" || rawDomainStatus === "no"
@@ -49,6 +73,14 @@ export function validateContactPayload(
   const domainName =
     domainStatus === "yes"
       ? (data.domainName ?? "").toString().trim()
+      : "";
+
+  const rawPreference = (data.contactPreference ?? "").toString().trim();
+  const contactPreference: ContactPreference =
+    rawPreference === "telefono" ||
+    rawPreference === "correo" ||
+    rawPreference === "whatsapp"
+      ? rawPreference
       : "";
 
   if (name.length < 2) {
@@ -85,6 +117,8 @@ export function validateContactPayload(
       message,
       domainStatus,
       domainName,
+      contactPreference,
+      preferredSchedule,
     },
   };
 }
