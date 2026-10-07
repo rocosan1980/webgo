@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { validateContactPayload } from "@/lib/contact";
+import { createLead } from "@/lib/leads-store";
+import { sendContactLeadEmail } from "@/lib/resend-webgo";
 
 export async function POST(request: Request) {
   let body: unknown;
@@ -30,8 +32,21 @@ export async function POST(request: Request) {
     );
   }
 
-  // Listo para conectar con CRM, email, WhatsApp Business API o automatizaciones.
-  console.info("[WebGo] Nuevo lead de contacto:", result.data);
+  try {
+    await createLead(result.data);
+  } catch (error) {
+    console.error("[WebGo] Error al guardar lead:", error);
+    return NextResponse.json(
+      {
+        ok: false,
+        message: "No pudimos registrar tu solicitud. Inténtalo de nuevo.",
+      },
+      { status: 500 },
+    );
+  }
+
+  // Best-effort: el correo no debe romper el flujo de WhatsApp/registro.
+  void sendContactLeadEmail(result.data);
 
   return NextResponse.json({
     ok: true,

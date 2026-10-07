@@ -6,6 +6,10 @@ import {
   ContactPayload,
   validateContactPayload,
 } from "@/lib/contact";
+import {
+  buildContactWhatsAppMessage,
+  getWhatsAppHref,
+} from "@/lib/whatsapp";
 
 const initialForm: ContactPayload = {
   name: "",
@@ -33,6 +37,14 @@ export default function ContactForm() {
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
+  const openWhatsAppChat = (payload: ContactPayload) => {
+    const href = getWhatsAppHref(buildContactWhatsAppMessage(payload));
+    const popup = window.open(href, "_blank", "noopener,noreferrer");
+    if (!popup) {
+      window.location.href = href;
+    }
+  };
+
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFeedback("");
@@ -46,38 +58,27 @@ export default function ContactForm() {
     }
 
     setStatus("loading");
+    setFeedback("Validando tus datos y preparando el chat de WhatsApp...");
 
+    // Registro best-effort del lead (no bloquea la conversión a WhatsApp).
     try {
-      const response = await fetch("/api/contact", {
+      await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validation.data),
       });
-
-      const data = (await response.json()) as {
-        ok: boolean;
-        message?: string;
-        errors?: ContactFieldErrors;
-      };
-
-      if (!response.ok || !data.ok) {
-        setErrors(data.errors ?? {});
-        setStatus("error");
-        setFeedback(data.message ?? "No pudimos enviar tu solicitud.");
-        return;
-      }
-
-      setForm(initialForm);
-      setErrors({});
-      setStatus("success");
-      setFeedback(
-        data.message ??
-          "Recibimos tu solicitud. Te contactaremos pronto.",
-      );
     } catch {
-      setStatus("error");
-      setFeedback("Error de red. Inténtalo nuevamente en unos segundos.");
+      // Continúa el flujo de WhatsApp aunque falle el registro.
     }
+
+    setErrors({});
+    setStatus("success");
+    setFeedback(
+      "¡Registro listo! Te estamos abriendo WhatsApp para continuar tu cotización de inmediato.",
+    );
+
+    openWhatsAppChat(validation.data);
+    setForm(initialForm);
   };
 
   const fieldClass =
@@ -94,8 +95,8 @@ export default function ContactForm() {
             Cuéntanos qué quieres lanzar.
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted sm:text-lg">
-            Completa el formulario y te respondemos con una propuesta clara:
-            alcance, tiempos y siguientes pasos.
+            Completa el formulario y te llevamos directo a WhatsApp para afinar
+            alcance, tiempos y siguientes pasos sin fricción.
           </p>
 
           <div className="mt-8 space-y-4 text-sm text-muted">
@@ -110,7 +111,7 @@ export default function ContactForm() {
             <p>
               Tiempo de respuesta habitual:{" "}
               <span className="font-semibold text-foreground">
-                menos de 24 horas hábiles
+                de volada por WhatsApp
               </span>
               .
             </p>
@@ -169,7 +170,7 @@ export default function ContactForm() {
                 onChange={onChange}
                 autoComplete="tel"
                 className={fieldClass}
-                placeholder="+57 300 000 0000"
+                placeholder="+52 55 0000 0000"
                 aria-invalid={Boolean(errors.phone)}
               />
               {errors.phone ? (
@@ -223,20 +224,26 @@ export default function ContactForm() {
           <button
             type="submit"
             disabled={status === "loading"}
-            className="mt-6 inline-flex w-full items-center justify-center rounded-md bg-accent px-4 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
+            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-accent px-4 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
           >
-            {status === "loading" ? "Enviando..." : "Enviar solicitud"}
+            {status === "loading"
+              ? "Abriendo WhatsApp..."
+              : "Enviar y abrir WhatsApp"}
           </button>
 
           {feedback ? (
-            <p
+            <div
               role="status"
-              className={`mt-4 text-sm ${
-                status === "success" ? "text-accent-strong" : "text-red-600"
+              className={`mt-4 rounded-md px-3.5 py-3 text-sm leading-relaxed ${
+                status === "success"
+                  ? "border border-accent/25 bg-accent-soft text-accent-strong"
+                  : status === "loading"
+                    ? "border border-line bg-surface text-muted"
+                    : "border border-red-200 bg-red-50 text-red-700"
               }`}
             >
               {feedback}
-            </p>
+            </div>
           ) : null}
         </form>
       </div>
