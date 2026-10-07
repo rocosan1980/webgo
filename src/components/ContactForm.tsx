@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import {
   ContactFieldErrors,
   ContactPayload,
@@ -19,12 +19,15 @@ const initialForm: ContactPayload = {
   message: "",
 };
 
+type SubmitMode = "email" | "email_whatsapp";
+
 export default function ContactForm() {
   const [form, setForm] = useState<ContactPayload>(initialForm);
   const [errors, setErrors] = useState<ContactFieldErrors>({});
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle",
   );
+  const [activeMode, setActiveMode] = useState<SubmitMode | null>(null);
   const [feedback, setFeedback] = useState("");
 
   const onChange = (
@@ -45,44 +48,77 @@ export default function ContactForm() {
     }
   };
 
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const submitContact = async (mode: SubmitMode) => {
     setFeedback("");
+    setActiveMode(mode);
 
     const validation = validateContactPayload(form);
     if (!validation.ok) {
       setErrors(validation.errors);
       setStatus("error");
       setFeedback("Revisa los campos marcados e inténtalo de nuevo.");
+      setActiveMode(null);
       return;
     }
 
     setStatus("loading");
-    setFeedback("Validando tus datos y preparando el chat de WhatsApp...");
+    setFeedback(
+      mode === "email_whatsapp"
+        ? "Enviando tu solicitud y preparando WhatsApp..."
+        : "Enviando tu mensaje por correo...",
+    );
 
-    // Registro best-effort del lead (no bloquea la conversión a WhatsApp).
     try {
-      await fetch("/api/contact", {
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validation.data),
       });
+
+      const result = (await response.json().catch(() => null)) as {
+        ok?: boolean;
+        message?: string;
+      } | null;
+
+      if (!response.ok || !result?.ok) {
+        setStatus("error");
+        setFeedback(
+          result?.message ||
+            "No pudimos enviar tu solicitud. Inténtalo de nuevo.",
+        );
+        setActiveMode(null);
+        return;
+      }
+
+      setErrors({});
+      setStatus("success");
+
+      if (mode === "email_whatsapp") {
+        setFeedback(
+          "¡Mensaje enviado! Te abrimos WhatsApp para continuar la conversación.",
+        );
+        openWhatsAppChat(validation.data);
+      } else {
+        setFeedback(
+          "¡Mensaje enviado! Te contactaremos pronto por correo.",
+        );
+      }
+
+      setForm(initialForm);
     } catch {
-      // Continúa el flujo de WhatsApp aunque falle el registro.
+      setStatus("error");
+      setFeedback(
+        "No pudimos enviar tu solicitud. Revisa tu conexión e inténtalo de nuevo.",
+      );
+    } finally {
+      setActiveMode(null);
     }
-
-    setErrors({});
-    setStatus("success");
-    setFeedback(
-      "¡Registro listo! Te estamos abriendo WhatsApp para continuar tu cotización de inmediato.",
-    );
-
-    openWhatsAppChat(validation.data);
-    setForm(initialForm);
   };
 
   const fieldClass =
     "mt-2 w-full rounded-md border border-line bg-surface px-3.5 py-3 text-sm text-foreground outline-none transition-[border-color,box-shadow] placeholder:text-muted/70 focus:border-accent focus:shadow-[0_0_0_3px_rgba(14,143,159,0.15)]";
+
+  const isLoading = status === "loading";
 
   return (
     <section id="contacto" className="border-t border-line bg-surface">
@@ -95,8 +131,8 @@ export default function ContactForm() {
             Cuéntanos qué quieres lanzar.
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted sm:text-lg">
-            Completa el formulario y te llevamos directo a WhatsApp para afinar
-            alcance, tiempos y siguientes pasos sin fricción.
+            Completa el formulario y elige cómo quieres que te contactemos:
+            solo por correo, o por correo y WhatsApp al mismo tiempo.
           </p>
 
           <div className="mt-8 space-y-4 text-sm text-muted">
@@ -119,7 +155,7 @@ export default function ContactForm() {
         </div>
 
         <form
-          onSubmit={onSubmit}
+          onSubmit={(event) => event.preventDefault()}
           noValidate
           className="rounded-2xl border border-line bg-background p-6 sm:p-8"
         >
@@ -221,15 +257,29 @@ export default function ContactForm() {
             ) : null}
           </label>
 
-          <button
-            type="submit"
-            disabled={status === "loading"}
-            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-accent px-4 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
-          >
-            {status === "loading"
-              ? "Abriendo WhatsApp..."
-              : "Enviar y abrir WhatsApp"}
-          </button>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={() => void submitContact("email")}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-line bg-surface px-4 py-3.5 text-sm font-semibold text-foreground transition-colors hover:border-accent hover:text-accent-strong disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
+            >
+              {isLoading && activeMode === "email"
+                ? "Enviando..."
+                : "Enviar mensaje por correo"}
+            </button>
+
+            <button
+              type="button"
+              disabled={isLoading}
+              onClick={() => void submitContact("email_whatsapp")}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-accent px-4 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
+            >
+              {isLoading && activeMode === "email_whatsapp"
+                ? "Enviando y abriendo WhatsApp..."
+                : "Enviar correo y abrir WhatsApp"}
+            </button>
+          </div>
 
           {feedback ? (
             <div

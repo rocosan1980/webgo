@@ -28,12 +28,11 @@ function getNotifyTo(): string[] {
     .filter(Boolean);
 }
 
-/** Remitente de pruebas Resend (obligatorio hasta verificar dominio propio). */
-const RESEND_TEST_FROM = "WebGo <onboarding@resend.dev>";
-
 function getFromEmail() {
-  // Forzamos el remitente de pruebas para evitar 403 por dominio no verificado.
-  return RESEND_TEST_FROM;
+  return (
+    process.env.RESEND_FROM_EMAIL_WEBGO?.trim() ||
+    "WebGo <noreply@webgo.lat>"
+  );
 }
 
 function formatDateTime(date = new Date()) {
@@ -59,6 +58,7 @@ function escapeHtml(value: string) {
 export async function sendContactLeadEmail(data: ContactPayload) {
   const apiKey = getResendApiKey();
   const to = getNotifyTo();
+  const from = getFromEmail();
 
   if (!apiKey || to.length === 0) {
     console.warn(
@@ -82,7 +82,7 @@ export async function sendContactLeadEmail(data: ContactPayload) {
 
   try {
     const { error } = await resend.emails.send({
-      from: getFromEmail(),
+      from,
       to,
       replyTo: data.email,
       subject: `Nuevo prospecto WebGo · ${packageName} · ${data.name}`,
@@ -117,7 +117,7 @@ export async function sendContactLeadEmail(data: ContactPayload) {
 
     if (error) {
       console.error("[WebGo] Resend error:", {
-        from: RESEND_TEST_FROM,
+        from,
         to,
         error,
       });
