@@ -28,12 +28,12 @@ function getNotifyTo(): string[] {
     .filter(Boolean);
 }
 
+/** Remitente de pruebas Resend (obligatorio hasta verificar dominio propio). */
+const RESEND_TEST_FROM = "WebGo <onboarding@resend.dev>";
+
 function getFromEmail() {
-  return (
-    process.env.RESEND_FROM_EMAIL_WEBGO?.trim() ||
-    process.env.RESEND_FROM_EMAIL?.trim() ||
-    "WebGo <onboarding@resend.dev>"
-  );
+  // Forzamos el remitente de pruebas para evitar 403 por dominio no verificado.
+  return RESEND_TEST_FROM;
 }
 
 function formatDateTime(date = new Date()) {
@@ -116,7 +116,11 @@ export async function sendContactLeadEmail(data: ContactPayload) {
     });
 
     if (error) {
-      console.error("[WebGo] Resend error:", error);
+      console.error("[WebGo] Resend error:", {
+        from: RESEND_TEST_FROM,
+        to,
+        error,
+      });
       return { sent: false as const, reason: "provider_error" };
     }
 
